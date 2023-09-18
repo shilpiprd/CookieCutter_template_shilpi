@@ -5,7 +5,7 @@
 
 defaults:
   - override /data: cifar10
-  - override /model: cifar10
+  - override /model: timm
   - override /callbacks: default
   - override /trainer: default
 
@@ -25,9 +25,9 @@ model:
   optimizer:
     lr: 0.002
   net:
-    lin1_size: 128
-    lin2_size: 256
-    lin3_size: 64
+    model_name: resnet18
+    pretrained: True 
+    num_classes: 10
   compile: false
 
 data:

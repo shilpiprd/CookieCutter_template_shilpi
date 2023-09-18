@@ -1,4 +1,3 @@
-
 from typing import Any, Dict, Optional, Tuple
 
 import torch
@@ -10,23 +9,24 @@ from torchvision.transforms import transforms
 class CIFAR10DataModule(LightningDataModule):
     def __init__(
         self,
-        data_dir: str = "data/",
+        data_dir: str = "./",
         train_val_test_split: Tuple[int, int, int] = (45_000, 5_000, 10_000),
         batch_size: int = 64,
         num_workers: int = 0,
         pin_memory: bool = False,
-    ) -> None:
+        ):
         super().__init__()
-        # self.data_dir = data_dir #we'll use h_params
-        self.transform = transforms.Compose(
+        self.data_dir = data_dir #we'll use h_params
+        self.transforms = transforms.Compose(
             [
                 transforms.ToTensor(),
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ]
         )
-
+        self.save_hyperparameters(logger=False)
         self.dims = (3, 32, 32)
-        self.num_classes = 10
+        # self.num_classes = 10
+
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
         self.data_test: Optional[Dataset] = None
@@ -38,6 +38,7 @@ class CIFAR10DataModule(LightningDataModule):
 
     def setup(self, stage=None):
 
+        # load and split datasets only if not loaded already
         if not self.data_train and not self.data_val and not self.data_test:
             trainset = CIFAR10(self.hparams.data_dir, train=True, transform=self.transforms)
             testset = CIFAR10(self.hparams.data_dir, train=False, transform=self.transforms)
@@ -48,19 +49,27 @@ class CIFAR10DataModule(LightningDataModule):
                 generator=torch.Generator().manual_seed(42),
             )
 
+    def train_dataloader(self):
+        return DataLoader(self.cifar_train, batch_size=BATCH_SIZE)
+
+    def val_dataloader(self):
+        return DataLoader(self.cifar_val, batch_size=BATCH_SIZE)
+
+    def test_dataloader(self):
+        return DataLoader(self.cifar_test, batch_size=BATCH_SIZE)
 
     def train_dataloader(self) -> DataLoader[Any]:
-        """Create and return the train dataloader.
+            """Create and return the train dataloader.
 
-        :return: The train dataloader.
-        """
-        return DataLoader(
-            dataset=self.data_train,
-            batch_size=self.hparams.batch_size,
-            num_workers=self.hparams.num_workers,
-            pin_memory=self.hparams.pin_memory,
-            shuffle=True,
-        )
+            :return: The train dataloader.
+            """
+            return DataLoader(
+                dataset=self.data_train,
+                batch_size=self.hparams.batch_size,
+                num_workers=self.hparams.num_workers,
+                pin_memory=self.hparams.pin_memory,
+                shuffle=True,
+            )
 
     def val_dataloader(self) -> DataLoader[Any]:
         """Create and return the validation dataloader.
@@ -112,13 +121,6 @@ class CIFAR10DataModule(LightningDataModule):
         """
         pass
 
-if __name__ == "__main__":
-    # _ = CIFAR10DataModule()
-    import hydra
-    import omegaconf
-    import pyrootutils
 
-    root = pyrootutils.setup_root(__file__, pythonpath=True)
-    cfg = omegaconf.OmegaConf.load(root / "configs" / "datamodule" / "cifar10.yaml")
-    cfg.data_dir = str(root / "data")
-    _ = hydra.utils.instantiate(cfg)
+if __name__ == "__main__":
+    _ = CIFAR10DataModule()
