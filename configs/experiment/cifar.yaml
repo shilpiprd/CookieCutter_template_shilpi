@@ -8,6 +8,8 @@ defaults:
   - override /model: timm
   - override /callbacks: default
   - override /trainer: default
+  # - override hydra/sweeper: optuna
+
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters

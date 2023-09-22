@@ -59,29 +59,22 @@ class CIFAR10DataModule(LightningDataModule):
         return DataLoader(self.cifar_test, batch_size=BATCH_SIZE)
 
     def train_dataloader(self) -> DataLoader[Any]:
-            """Create and return the train dataloader.
-
-            :return: The train dataloader.
-            """
-            return DataLoader(
-                dataset=self.data_train,
-                batch_size=self.hparams.batch_size,
-                num_workers=self.hparams.num_workers,
-                pin_memory=self.hparams.pin_memory,
-                shuffle=True,
-            )
+        print(f"Training dataset size inside datamodule: {len(self.data_train)}")
+        return DataLoader(
+            dataset=self.data_train,
+            batch_size=self.hparams.batch_size,
+            num_workers=self.hparams.num_workers,
+            pin_memory=self.hparams.pin_memory,
+            shuffle=True)
 
     def val_dataloader(self) -> DataLoader[Any]:
-        """Create and return the validation dataloader.
-
-        :return: The validation dataloader.
-        """
+        print(f"Validation dataset size inside datamodule: {len(self.data_val)}")
         return DataLoader(
             dataset=self.data_val,
             batch_size=self.hparams.batch_size,
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
-            shuffle=False,
+            shuffle=False
         )
 
     def test_dataloader(self) -> DataLoader[Any]:
