@@ -4,6 +4,7 @@ import torch
 from lightning import LightningModule
 from torchmetrics import MaxMetric, MeanMetric
 from torchmetrics.classification.accuracy import Accuracy
+from pytorch_lightning.loggers import TensorBoardLogger
 
 
 class MNISTLitModule(LightningModule):
@@ -57,7 +58,11 @@ class MNISTLitModule(LightningModule):
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
         self.save_hyperparameters(logger=False)
+        # Set up the logger
+        self.logger = TensorBoardLogger("tb_logs", name="my_model")
 
+        # Log the hyperparameters; at this point, no metrics (like validation loss) are available
+        self.logger.log_hyperparams(self.hparams)  
         self.net = net
 
         # loss function

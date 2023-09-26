@@ -5,7 +5,7 @@ defaults:
   - data: mnist # choose datamodule with `test_dataloader()` for evaluation
   - model: mnist
   - logger: null
-  - trainer: default
+  - trainer: gpu
   - paths: default
   - extras: default
   - hydra: default
